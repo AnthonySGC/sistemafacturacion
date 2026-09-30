@@ -1,0 +1,11 @@
+ni\edu\uam\facturacion\application\FacturacionApplication.class
+ni\edu\uam\facturacion\util\SceneManager.class
+ni\edu\uam\facturacion\controller\MenuPrincipalController.class
+ni\edu\uam\facturacion\controller\ProductoController.class
+ni\edu\uam\facturacion\dao\CategoriaDAO.class
+module-info.class
+ni\edu\uam\facturacion\model\Categoria.class
+ni\edu\uam\facturacion\util\DatabaseConnection.class
+ni\edu\uam\facturacion\dao\ProductoDAO.class
+ni\edu\uam\facturacion\controller\CategoriaController.class
+ni\edu\uam\facturacion\model\Producto.class
