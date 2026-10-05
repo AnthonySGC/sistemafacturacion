@@ -3,13 +3,7 @@ package ni.edu.uam.facturacion.controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import ni.edu.uam.facturacion.dao.CategoriaDAO;
@@ -40,9 +34,7 @@ public class CategoriaController {
     @FXML
     private TableColumn<Categoria, Boolean> colActiva;
 
-
-    private final CategoriaDAO categoriaDAO =
-            new CategoriaDAO();
+    private final CategoriaDAO categoriaDAO = new CategoriaDAO();
 
     private final ObservableList<Categoria> categorias =
             FXCollections.observableArrayList();
@@ -75,12 +67,10 @@ public class CategoriaController {
                 .getSelectionModel()
                 .selectedItemProperty()
                 .addListener(
-                        (obs, anterior, actual) ->
-                                mostrar(actual)
+                        (obs, anterior, actual) -> mostrar(actual)
                 );
 
         chkActiva.setSelected(true);
-
         btnEliminar.setDisable(true);
 
         cargarCategorias();
@@ -97,10 +87,14 @@ public class CategoriaController {
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "cargar las categorías",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible cargar las categorías."
             );
         }
     }
@@ -149,9 +143,6 @@ public class CategoriaController {
 
         try {
 
-            /*
-             * INSERT
-             */
             if (seleccionada == null) {
 
                 if (categoriaDAO.existeNombre(nombre)) {
@@ -185,10 +176,6 @@ public class CategoriaController {
                         "Categoría registrada correctamente."
                 );
 
-
-                /*
-                 * UPDATE
-                 */
             } else {
 
                 if (categoriaDAO.existeNombreExceptoId(
@@ -228,16 +215,19 @@ public class CategoriaController {
 
 
             nuevo();
-
             cargarCategorias();
 
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "guardar o actualizar una categoría",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible completar la operación."
             );
         }
     }
@@ -246,10 +236,6 @@ public class CategoriaController {
     @FXML
     private void eliminar() {
 
-        /*
-         * No se puede eliminar sin haber
-         * seleccionado una categoría.
-         */
         if (seleccionada == null) {
 
             mensaje(
@@ -278,17 +264,12 @@ public class CategoriaController {
                         .orElse(ButtonType.CANCEL)
                         != ButtonType.OK
         ) {
-
             return;
         }
 
 
         try {
 
-            /*
-             * Antes del DELETE comprobamos si
-             * existen productos relacionados.
-             */
             if (categoriaDAO.tieneProductos(
                     seleccionada.getId()
             )) {
@@ -314,16 +295,19 @@ public class CategoriaController {
 
 
             nuevo();
-
             cargarCategorias();
 
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "eliminar una categoría",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible completar la operación."
             );
         }
     }
@@ -336,18 +320,13 @@ public class CategoriaController {
                 .getSelectionModel()
                 .clearSelection();
 
-
         seleccionada = null;
-
 
         txtNombre.clear();
 
-
         chkActiva.setSelected(true);
 
-
         btnEliminar.setDisable(true);
-
 
         txtNombre.requestFocus();
     }
@@ -365,18 +344,31 @@ public class CategoriaController {
     }
 
 
+    private void registrarErrorSQL(
+            String operacion,
+            SQLException e
+    ) {
+
+        System.err.println(
+                "Error SQL al "
+                        + operacion
+                        + ": "
+                        + e.getMessage()
+        );
+
+        e.printStackTrace();
+    }
+
+
     private void mensaje(
             Alert.AlertType tipo,
             String texto
     ) {
 
-        Alert alert =
-                new Alert(
-                        tipo,
-                        texto,
-                        ButtonType.OK
-                );
-
-        alert.showAndWait();
+        new Alert(
+                tipo,
+                texto,
+                ButtonType.OK
+        ).showAndWait();
     }
 }

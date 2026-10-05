@@ -4,14 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -186,10 +179,7 @@ public class ProductoController {
                 )
         );
 
-        cmbEstado.setValue(
-                "Todos"
-        );
-
+        cmbEstado.setValue("Todos");
 
         cmbFiltroCategoria.setValue(
                 todasCategorias
@@ -232,20 +222,14 @@ public class ProductoController {
         chkActivo.setSelected(true);
 
         btnActualizar.setDisable(true);
-
         btnEliminar.setDisable(true);
 
 
         cargarCategorias();
-
         cargarProductos();
     }
 
 
-    /*
-     * Carga únicamente las categorías activas
-     * en el formulario de Producto.
-     */
     private void cargarCategorias() {
 
         try {
@@ -270,15 +254,11 @@ public class ProductoController {
                     );
 
 
-            filtro.addAll(
-                    todas
-            );
-
+            filtro.addAll(todas);
 
             cmbFiltroCategoria.setItems(
                     filtro
             );
-
 
             cmbFiltroCategoria.setValue(
                     todasCategorias
@@ -287,10 +267,14 @@ public class ProductoController {
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "cargar las categorías",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible cargar las categorías."
             );
         }
     }
@@ -306,10 +290,14 @@ public class ProductoController {
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "cargar los productos",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible cargar los productos."
             );
         }
     }
@@ -358,9 +346,7 @@ public class ProductoController {
 
                     boolean coincideEstado =
                             estado == null
-
                                     || estado.equals("Todos")
-
                                     || (
                                     estado.equals("Activos")
                                             == producto.isActivo()
@@ -369,9 +355,7 @@ public class ProductoController {
 
                     boolean coincideCategoria =
                             categoria == null
-
                                     || categoria.getId() == null
-
                                     || Objects.equals(
                                     categoria.getId(),
                                     producto
@@ -388,25 +372,20 @@ public class ProductoController {
     }
 
 
-    /*
-     * Carga el producto seleccionado
-     * en el formulario.
-     */
-    private void mostrar(Producto producto) {
+    private void mostrar(
+            Producto producto
+    ) {
 
-        seleccionado =
-                producto;
+        seleccionado = producto;
 
 
         btnEliminar.setDisable(
                 producto == null
         );
 
-
         btnActualizar.setDisable(
                 producto == null
         );
-
 
         btnGuardar.setDisable(
                 producto != null
@@ -422,11 +401,9 @@ public class ProductoController {
                 producto.getCodigo()
         );
 
-
         txtNombre.setText(
                 producto.getNombre()
         );
-
 
         txtPrecio.setText(
                 producto
@@ -434,18 +411,15 @@ public class ProductoController {
                         .toPlainString()
         );
 
-
         txtExistencia.setText(
                 String.valueOf(
                         producto.getExistencia()
                 )
         );
 
-
         chkActivo.setSelected(
                 producto.isActivo()
         );
-
 
         mostrarImagen(
                 producto.getRutaImagen()
@@ -475,9 +449,6 @@ public class ProductoController {
     }
 
 
-    /*
-     * INSERT
-     */
     @FXML
     private void guardar() {
 
@@ -492,10 +463,6 @@ public class ProductoController {
 
         try {
 
-            /*
-             * Ahora el código duplicado se comprueba
-             * directamente en la base de datos.
-             */
             if (productoDAO.existeCodigo(
                     producto.getCodigo()
             )) {
@@ -523,24 +490,24 @@ public class ProductoController {
 
 
             nuevo();
-
             cargarProductos();
 
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "registrar un producto",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible registrar el producto."
             );
         }
     }
 
 
-    /*
-     * UPDATE
-     */
     @FXML
     private void actualizar() {
 
@@ -568,10 +535,6 @@ public class ProductoController {
 
         try {
 
-            /*
-             * Busca otro producto con el mismo código,
-             * pero excluye el producto seleccionado.
-             */
             if (productoDAO.existeCodigoExceptoId(
                     producto.getCodigo(),
                     seleccionado.getId()
@@ -600,26 +563,27 @@ public class ProductoController {
 
 
             nuevo();
-
             cargarProductos();
 
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "actualizar un producto",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible actualizar el producto."
             );
         }
     }
 
 
-    /*
-     * Valida todos los datos ingresados
-     * y construye el objeto Producto.
-     */
-    private Producto leerFormulario(Integer id) {
+    private Producto leerFormulario(
+            Integer id
+    ) {
 
         String codigo =
                 txtCodigo
@@ -633,9 +597,6 @@ public class ProductoController {
                         .trim();
 
 
-        /*
-         * Campos obligatorios.
-         */
         if (codigo.isEmpty()) {
 
             return invalido(
@@ -664,9 +625,6 @@ public class ProductoController {
         }
 
 
-        /*
-         * Precio.
-         */
         BigDecimal precio;
 
 
@@ -682,7 +640,7 @@ public class ProductoController {
         } catch (NumberFormatException e) {
 
             return invalido(
-                    "El precio debe ser numérico."
+                    "El precio debe ser un valor numérico."
             );
         }
 
@@ -695,9 +653,6 @@ public class ProductoController {
         }
 
 
-        /*
-         * Existencia.
-         */
         int existencia;
 
 
@@ -724,16 +679,6 @@ public class ProductoController {
                     "La existencia no puede ser negativa."
             );
         }
-
-
-        /*
-         * La validación de código duplicado
-         * ya NO se hace aquí utilizando la lista
-         * cargada en memoria.
-         *
-         * Ahora se realiza directamente contra
-         * la base de datos en guardar() y actualizar().
-         */
 
 
         String rutaImagen =
@@ -801,7 +746,6 @@ public class ProductoController {
                         .orElse(ButtonType.CANCEL)
                         != ButtonType.OK
         ) {
-
             return;
         }
 
@@ -820,16 +764,19 @@ public class ProductoController {
 
 
             nuevo();
-
             cargarProductos();
 
 
         } catch (SQLException e) {
 
+            registrarErrorSQL(
+                    "eliminar un producto",
+                    e
+            );
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "Error de base de datos: "
-                            + e.getMessage()
+                    "No fue posible eliminar el producto."
             );
         }
     }
@@ -847,11 +794,8 @@ public class ProductoController {
 
 
         txtCodigo.clear();
-
         txtNombre.clear();
-
         txtPrecio.clear();
-
         txtExistencia.clear();
 
 
@@ -867,9 +811,7 @@ public class ProductoController {
 
 
         btnEliminar.setDisable(true);
-
         btnActualizar.setDisable(true);
-
         btnGuardar.setDisable(false);
 
 
@@ -877,10 +819,6 @@ public class ProductoController {
     }
 
 
-    /*
-     * Permite seleccionar y copiar una imagen
-     * a resources/images/productos.
-     */
     @FXML
     private void examinarImagen() {
 
@@ -968,10 +906,16 @@ public class ProductoController {
 
         } catch (IOException e) {
 
+            System.err.println(
+                    "Error al copiar la imagen: "
+                            + e.getMessage()
+            );
+
+            e.printStackTrace();
+
             mensaje(
                     Alert.AlertType.ERROR,
-                    "No se pudo copiar la imagen: "
-                            + e.getMessage()
+                    "No fue posible guardar la imagen seleccionada."
             );
         }
     }
@@ -1024,8 +968,23 @@ public class ProductoController {
                         .getScene()
                         .getWindow();
 
-
         stage.close();
+    }
+
+
+    private void registrarErrorSQL(
+            String operacion,
+            SQLException e
+    ) {
+
+        System.err.println(
+                "Error SQL al "
+                        + operacion
+                        + ": "
+                        + e.getMessage()
+        );
+
+        e.printStackTrace();
     }
 
 
@@ -1034,14 +993,10 @@ public class ProductoController {
             String texto
     ) {
 
-        Alert alert =
-                new Alert(
-                        tipo,
-                        texto,
-                        ButtonType.OK
-                );
-
-
-        alert.showAndWait();
+        new Alert(
+                tipo,
+                texto,
+                ButtonType.OK
+        ).showAndWait();
     }
 }
