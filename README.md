@@ -54,4 +54,4 @@ src/main/
 
 ## Autor
 
-- Geanfranco Rodriguez — [@Geanrm30](https://github.com/Geanrm30)
+- Anthony González
